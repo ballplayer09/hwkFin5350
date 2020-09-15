@@ -1,0 +1,3 @@
+I enjoyed this first formal experience with pairs programming. I can see that it will be valuable for writing code. One challenge I foresee for pairs programming when learning to write code is when previous programming experience is unbalanced. In the case of my pair, I have a lot more experience than my partner. I think an important part of learning to program is struggling with errors and learning new things. I will have to balance helping my partner with letting him struggle.
+
+The assignment was easy and we did not have any issues completing it.
