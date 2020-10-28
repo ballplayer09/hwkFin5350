@@ -24,3 +24,5 @@ Finished nuggets problem, moved onto bond pricing. David completed one present v
 
 Isaac: 3:58 - 4:30
 Finished bond pricing with cashflows and checked our answers. Then coded Problem 4 using our experience with problems 2 & 3, went much smoother than the first few. Have some troubleshooting 
+
+David and Isaac log file, 3 pm on 10/28
