@@ -16,7 +16,7 @@ fixed bug in the logic that was preventing the computer to get to the right answ
 
 Programming Log file 10/12 3:06 PM
 
-Isaac: 3:05-3:26
+Isaac: 3:05 - 3:26
 Discussed plans to proceed, building main function of nuggets problem
 
 David: 3:27 - 3:54
@@ -25,13 +25,13 @@ Finished nuggets problem, moved onto bond pricing. David completed one present v
 Isaac: 3:58 - 4:30
 Finished bond pricing with cashflows and checked our answers. Then coded Problem 4 using our experience with problems 2 & 3, went much smoother than the first few. Have some troubleshooting 
 
-David and Isaac log file, 3 pm on 10/28
+Log File for October 28, 2020
 
-Isaac: 3 - 3:15
-Completed addendum problems 1 and 2
+Isaac 3:12 p.m. - 3:29 p.m.
+Completed problems 1-2, all parts. 
 
-David: 3:15 - 3:40
-Completed addendum problems 3 through 5
+David 3:30 p.m. - 3:55 p.m. 
+Had to troubleshoot some gitHub issues, finished that. Also did problems 3-5, passed back to Isaac for last couple. 
 
-Isaac: 3:40 - 4:15
-Completed the remaining problems but found that our yield to maturity function results were not matching the numpy_financial irr function
+Isaac 3:55 p.m. - 4:20 p.m.
+We talked out questions 5 & 6 together, Isaac coded the problems checking with numpy_financial irr functions.
