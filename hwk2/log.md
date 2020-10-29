@@ -26,3 +26,12 @@ Isaac: 3:58 - 4:30
 Finished bond pricing with cashflows and checked our answers. Then coded Problem 4 using our experience with problems 2 & 3, went much smoother than the first few. Have some troubleshooting 
 
 David and Isaac log file, 3 pm on 10/28
+
+Isaac: 3 - 3:15
+Completed addendum problems 1 and 2
+
+David: 3:15 - 3:40
+Completed addendum problems 3 through 5
+
+Isaac: 3:40 - 4:15
+Completed the remaining problems but found that our yield to maturity function results were not matching the numpy_financial irr function
