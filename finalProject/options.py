@@ -13,14 +13,42 @@ def put_payoff(spot, strike):
     return np.maximum(strike - spot, 0.0)
 
 
+def simulate_prices(u, d, num, spot, strike):
+
+    stock_prices = {}
+    call_values = {}
+    put_values = {}
+    stock_prices['Period_0'] = np.array([spot])
+    call_values['Period_0'] = np.array([spot - strike])
+    put_values['Period_0'] = np.array([strike - spot])
+
+    for i in range(1, num+1):
+        previous_prices = stock_prices[f"Period_{i - 1}"]
+        
+        temp = []
+        for price in previous_prices:
+            temp.append(price * u)
+            temp.append(price * d)
+
+        price_result = []
+        [price_result.append(price) for price in temp if price not in result]        
+
+        stock_prices[f"Period_{i}"] = np.array(price_result)
+        call_values[f"Period_{i}"] = np.array(price_result) - strike
+        put_values[f"Period_{i}"] = strike - np.array(price_result)
+
+    return (stock_prices, call_values, put_values)
+
+
 def calculate_premium(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
     
     # calculate u and d
     u = math.e ** ((rate - div) * (1+vol*math.sqrt(expiry / num)))
     d = math.e ** ((rate - div) * (1-vol*math.sqrt(expiry / num)))
     
-    Su = spot * u
-    Sd = spot * d
+    prices = simulate_prices(u, d, num, spot, strike)
+    
+    
     
     delta = (math.e ** (-div * (expiry / num))) * ((cu - cd)/(spot * (u - d)))
     b = (math.e ** (-rate * expiry / num)) * ((u * cd - d * cu) / (u - d))
