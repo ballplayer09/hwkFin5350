@@ -83,7 +83,28 @@ def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: fl
     return option_premium
 
 def american_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
-    pass 
+    # calculate u and d
+    u = math.e ** ((rate - div) * (expiry / num) + (vol * math.sqrt(expiry / num)))
+    d = math.e ** ((rate - div) * (expiry / num) - (vol * math.sqrt(expiry / num)))
+    
+    # calculate p*
+    p_star = (math.e ** ((rate - div) * (expiry / num)) - d) / (u - d)
+    
+    # initalize array for the prices of the terminal nodes and calculate option premium
+    terminal_spot_prices = np.zeros(num+1)
+    option_premium = 0
+    
+    for i in range(num+1):
+        terminal_spot_prices[i] = spot * (u ** (num - i)) * (d ** i)
+        
+        option_premium += payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
+            
+            
+    discount_factor = math.e ** (-rate * expiry)
+        
+    option_premium = option_premium * discount_factor
+    
+    return option_premium 
 
 def black_scholes_call(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float) -> float:
     d1 = (np.log(spot/strike) + (rate - div + 0.5 * vol * vol) * expiry) / (vol * np.sqrt(expiry))
