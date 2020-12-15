@@ -57,7 +57,7 @@ def put_payoff(spot, strike):
 
 
 ## Pricing functions
-def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, call=True) -> float:
+def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
     
     # calculate u and d
     u = math.e ** ((rate - div) * (expiry / num) + (vol * math.sqrt(expiry / num)))
@@ -73,10 +73,7 @@ def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: fl
     for i in range(num+1):
         terminal_spot_prices[i] = spot * (u ** (num - i)) * (d ** i)
         
-        if call:
-            option_premium += call_payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
-        else:
-            option_premium += put_payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
+        option_premium += payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
             
             
     discount_factor = math.e ** (-rate * expiry)
