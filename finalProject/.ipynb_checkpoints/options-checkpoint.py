@@ -13,73 +13,77 @@ def put_payoff(spot, strike):
     return np.maximum(strike - spot, 0.0)
 
 
-def simulate_prices(u, d, num, spot, strike):
+# def simulate_prices(u, d, num, spot, strike):
 
-    stock_prices = {}
-    call_values = {}
-    put_values = {}
-    stock_prices['Period_0'] = np.array([spot])
-    call_values['Period_0'] = np.array([spot - strike])
-    put_values['Period_0'] = np.array([strike - spot])
+#     stock_prices = {}
+#     stock_prices['Period_0'] = np.array([spot])
 
-    for i in range(1, num+1):
-        previous_prices = stock_prices[f"Period_{i - 1}"]
+#     for i in range(1, num+1):
+#         previous_prices = stock_prices[f"Period_{i - 1}"]
         
-        temp = []
-        for price in previous_prices:
-            temp.append(price * u)
-            temp.append(price * d)
+#         temp = []
+#         for price in previous_prices:
+#             temp.append(price * u)
+#             temp.append(price * d)
 
-        price_result = []
-        [price_result.append(price) for price in temp if price not in result]        
+#         price_result = []
 
-        stock_prices[f"Period_{i}"] = np.array(price_result)
-        call_values[f"Period_{i}"] = np.array(price_result) - strike
-        put_values[f"Period_{i}"] = strike - np.array(price_result)
+#         stock_prices[f"Period_{i}"] = np.array(price_result)
 
-    return (stock_prices, call_values, put_values)
-
-
-def calculate_premium(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
+#     return (stock_prices)
+        
+   
+        
     
-    # calculate u and d
-    u = math.e ** ((rate - div) * (1+vol*math.sqrt(expiry / num)))
-    d = math.e ** ((rate - div) * (1-vol*math.sqrt(expiry / num)))
+#     for i in range(1, num+1):
+#         current_period = option_values[f"Period_{i}"]
+#         period_premiums = []
+        
+#         for j in range(len(current_period)-1):
+            
+#             cu = current_period[j]
+#             cd = current_period[j+1]
+        
+#             delta = (math.e ** (-div * (expiry / num))) * ((cu - cd)/ (spot * (u - d)))
+#             b = (math.e ** (-rate * expiry / num)) * ((u * cd - d * cu) / (u - d))
+#             premium = delta * spot + b
     
-    prices = simulate_prices(u, d, num, spot, strike)
-    
-    
-    
-    delta = (math.e ** (-div * (expiry / num))) * ((cu - cd)/(spot * (u - d)))
-    b = (math.e ** (-rate * expiry / num)) * ((u * cd - d * cu) / (u - d))
-    premium = delta * spot + b
-    
-    return premium
+#             period_premiums.append(premium)
+        
+#         option_premiums[f"Period_{i}"] = np.array(period_premiums)
+        
+#     return (prices, option_premiums)
     
 
 
 ## Pricing functions
-def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
+def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, call=True) -> float:
     
-    # simulate stock prices until the final period
+    # calculate u and d
+    u = math.e ** ((rate - div) * (expiry / num) + (vol * math.sqrt(expiry / num)))
+    d = math.e ** ((rate - div) * (expiry / num) - (vol * math.sqrt(expiry / num)))
     
-    # initialize an array the length of periods (num)
-    data = np.fill(0, num)
-    for i in range(num):
-        print(hello)
+    # calculate p*
+    p_star = (math.e ** ((rate - div) * (expiry / num)) - d) / (u - d)
+    
+    # initalize array for the prices of the terminal nodes and calculate option premium
+    terminal_spot_prices = np.zeros(num+1)
+    option_premium = 0
+    
+    for i in range(num+1):
+        terminal_spot_prices[i] = spot * (u ** (num - i)) * (d ** i)
         
+        if call:
+            option_premium += call_payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
+        else:
+            option_premium += put_payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
+            
+            
+    discount_factor = math.e ** (-rate * expiry)
+        
+    option_premium = option_premium * discount_factor
     
-        # calculate u and d
-        # loop... for each point in time calculate Su and Sd
-        # inside the loop keep track of the period we are in
-        # stop when logic is executed num times
-
-    # calculate value of option at each terminal node
-    # calculate value of option at each inner node using
-    # h = T/n --> expiry / num
-    
-    
-    # what is t
+    return option_premium
 
 def american_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
     pass 
