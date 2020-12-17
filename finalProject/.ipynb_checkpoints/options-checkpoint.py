@@ -55,19 +55,19 @@ def put_payoff(spot, strike):
 #     return (prices, option_premiums)
     
 
-
 ## Pricing functions
 def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
     
+    h = expiry / num
     # calculate u and d
-    u = math.e ** ((rate - div) * (expiry / num) + (vol * math.sqrt(expiry / num)))
-    d = math.e ** ((rate - div) * (expiry / num) - (vol * math.sqrt(expiry / num)))
+    u = np.exp((rate - div)*h + vol*np.sqrt(h))
+    d = np.exp((rate - div)*h - vol*np.sqrt(h))
     
     # calculate p*
-    p_star = (math.e ** ((rate - div) * (expiry / num)) - d) / (u - d)
+    p_star = (np.exp((rate - div) * h) - d) / (u - d)
     
     # initalize array for the prices of the terminal nodes and calculate option premium
-    terminal_spot_prices = np.zeros(num+1)
+    terminal_spot_prices = np.zeros(num + 1)
     option_premium = 0
     
     for i in range(num+1):
@@ -75,36 +75,38 @@ def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: fl
         
         option_premium += payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
             
-            
-    discount_factor = math.e ** (-rate * expiry)
+    discount_factor = np.exp(-rate * expiry)
         
     option_premium = option_premium * discount_factor
     
     return option_premium
 
 def american_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
+    h = expiry / num
     # calculate u and d
-    u = math.e ** ((rate - div) * (expiry / num) + (vol * math.sqrt(expiry / num)))
-    d = math.e ** ((rate - div) * (expiry / num) - (vol * math.sqrt(expiry / num)))
+    u = np.exp((rate - div)*h + vol*np.sqrt(h))
+    d = np.exp((rate - div)*h - vol*np.sqrt(h))
+    
+    discount_factor = np.exp(-rate * h)
     
     # calculate p*
-    p_star = (math.e ** ((rate - div) * (expiry / num)) - d) / (u - d)
+    p_star = (np.exp((rate - div) * h) - d) / (u - d)
     
     # initalize array for the prices of the terminal nodes and calculate option premium
-    terminal_spot_prices = np.zeros(num+1)
-    option_premium = 0
+    spot_t = np.zeros(num+1)
+    option_t = np.zeros(num+1)
     
     for i in range(num+1):
-        terminal_spot_prices[i] = spot * (u ** (num - i)) * (d ** i)
-        
-        option_premium += payoff(terminal_spot_prices[i], strike) * binom.pmf(num-i, num, p_star)
-            
-            
-    discount_factor = math.e ** (-rate * expiry)
-        
-    option_premium = option_premium * discount_factor
-    
-    return option_premium 
+        spot_t[i] = spot * (u ** (num - i)) * (d ** i)
+        option_t[i] = payoff(spot_t[i], strike) 
+
+    for i in range((num - 1), -1, -1):
+        for j in range(i + 1):
+            option_t[j] = discount_factor * ((p_star) * option_t[j] + (1.0 - p_star) * option_t[j+1])
+            spot_t[j] /= u
+            option_t[j] = np.maximum(option_t[j], payoff(spot_t[j], strike))
+
+    return option_t[0]
 
 def black_scholes_call(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float) -> float:
     d1 = (np.log(spot/strike) + (rate - div + 0.5 * vol * vol) * expiry) / (vol * np.sqrt(expiry))
