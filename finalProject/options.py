@@ -127,4 +127,5 @@ def black_scholes_call_delta(spot: float, strike: float, tau: float, rate: float
 
 ## Simulations
 def binomial_path(spot: float, expiry: float, rate: float, div: float, vol: float, num: int) -> np.ndarray:
-    pass   
+    
+    pass
