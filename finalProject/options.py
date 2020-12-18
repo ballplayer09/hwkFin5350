@@ -10,50 +10,7 @@ def call_payoff(spot, strike):
     return np.maximum(spot - strike, 0.0)
 
 def put_payoff(spot, strike):
-    return np.maximum(strike - spot, 0.0)
-
-
-# def simulate_prices(u, d, num, spot, strike):
-
-#     stock_prices = {}
-#     stock_prices['Period_0'] = np.array([spot])
-
-#     for i in range(1, num+1):
-#         previous_prices = stock_prices[f"Period_{i - 1}"]
-        
-#         temp = []
-#         for price in previous_prices:
-#             temp.append(price * u)
-#             temp.append(price * d)
-
-#         price_result = []
-
-#         stock_prices[f"Period_{i}"] = np.array(price_result)
-
-#     return (stock_prices)
-        
-   
-        
-    
-#     for i in range(1, num+1):
-#         current_period = option_values[f"Period_{i}"]
-#         period_premiums = []
-        
-#         for j in range(len(current_period)-1):
-            
-#             cu = current_period[j]
-#             cd = current_period[j+1]
-        
-#             delta = (math.e ** (-div * (expiry / num))) * ((cu - cd)/ (spot * (u - d)))
-#             b = (math.e ** (-rate * expiry / num)) * ((u * cd - d * cu) / (u - d))
-#             premium = delta * spot + b
-    
-#             period_premiums.append(premium)
-        
-#         option_premiums[f"Period_{i}"] = np.array(period_premiums)
-        
-#     return (prices, option_premiums)
-    
+    return np.maximum(strike - spot, 0.0)    
 
 ## Pricing functions
 def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
@@ -78,8 +35,8 @@ def european_binomial_pricer(spot: float, strike: float, expiry: float, rate: fl
     discount_factor = np.exp(-rate * expiry)
         
     option_premium = option_premium * discount_factor
-    
-    return option_premium
+
+    return option_premium 
 
 def american_binomial_pricer(spot: float, strike: float, expiry: float, rate: float, div: float, vol: float, num: int, payoff: Callable) -> float:
     h = expiry / num
@@ -127,5 +84,27 @@ def black_scholes_call_delta(spot: float, strike: float, tau: float, rate: float
 
 ## Simulations
 def binomial_path(spot: float, expiry: float, rate: float, div: float, vol: float, num: int) -> np.ndarray:
+    # calculate h
+    h = expiry / num    
     
-    pass
+    # calculate u and d
+    u = np.exp((rate - div)*h + vol*np.sqrt(h))
+    d = np.exp((rate - div)*h - vol*np.sqrt(h))
+    
+    # calculate p*
+    p_star = (np.exp((rate - div) * h) - d) / (u - d)
+#     print(p_star)
+    
+    path = binom.rvs(1, p_star, size = num)
+    
+    prices = np.zeros(num + 1)
+    prices[0] = spot
+    j = 1
+    
+    for i in path:        
+        if i == 1:
+            prices[j] = prices[j-1] * u
+        else:
+            prices[j] = prices[j-1] * d
+        j += 1
+    return prices
